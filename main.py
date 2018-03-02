@@ -1,25 +1,33 @@
-"""Wox Plugin class for unit conversions"""
+"""Wox Plugin class for ups tracking lookup"""
 
-import pint
+import webbrowser
+
 from wox import Wox
 
-class UnitConversion(Wox):
-    """Converts units, interfaces with Wox"""
+class UPSLookup(Wox):
+    """Opens UPS tracking page, interfaces with Wox"""
 
     def query(self, query):
-        """Returns the results of the user's search string"""
-        src, target = query.split(" to ")
-        try:
-            value = pint.UnitRegistry().Quantity(src)
-            answer = value.to(target)
-        except Exception as e:
-            answer = f"Something failed. {e}"
+        """Looks up pasted tracking number"""
+        
+        
         result = [{
-            "Title": f"{target.title()}",
-            "SubTitle": f"{answer}".title(),
+            "Title": "UPS Lookup",
+            "SubTitle": f"Look up {query} on UPS",
             "IcoPath": "Images\\app.png",
+            "JsonRPCAction": {
+                "method": "openUPS",
+                "parameters": [query],
+                "dontHideAfterAction": False
+            }
         }]
         return result
 
+    def openUPS(self, tracking):
+        open_new_tab_if_possible = 2
+        url = f"https://wwwapps.ups.com/WebTracking/track?track=yes&trackNums={tracking}"
+        webbrowser.open(url, new=open_new_tab_if_possible)
+
+
 if __name__ == "__main__":
-    UnitConversion()
+    UPSLookup()
